@@ -1,6 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { buttonStyles } from '@app/theme/components';
+import { useAppDispatch } from '@app/store';
+import {
+  clearMovieState,
+  setFeaturedMovie,
+  setTrendingMovies,
+} from '@modules/home/store/home.slice';
+import {
+  useLazyGetFeaturedMovieQuery,
+  useLazyGetTrendingMoviesQuery,
+} from '@modules/home';
 
 interface AdditionalOptionsProps {
   isCollapsed?: boolean;
@@ -40,6 +50,11 @@ export const OptionButton = styled.button<{ isCollapsed?: boolean }>`
 const AdditionalOptions: React.FC<AdditionalOptionsProps> = ({
   isCollapsed,
 }) => {
+  const dispatch = useAppDispatch();
+
+  const [fetchFeaturedMovie] = useLazyGetFeaturedMovieQuery();
+  const [fetchTrendingMovies] = useLazyGetTrendingMoviesQuery();
+
   const handleLanguageClick = () => {
     console.log('Language option clicked');
   };
@@ -48,8 +63,27 @@ const AdditionalOptions: React.FC<AdditionalOptionsProps> = ({
     console.log('Get Help option clicked');
   };
 
-  const handleExitClick = () => {
-    console.log('Exit option clicked');
+  const handleExitClick = async () => {
+    try {
+      dispatch(clearMovieState());
+
+      // Refetch the featured movie
+      const featuredMovieResult = await fetchFeaturedMovie();
+      console.log('dsafsdf3 featuredMovieResult: ', featuredMovieResult.data);
+      if (featuredMovieResult.data) {
+        dispatch(setFeaturedMovie(featuredMovieResult.data));
+      }
+
+      // Refetch trending movies
+      const trendingMoviesResult = await fetchTrendingMovies();
+      if (trendingMoviesResult.data) {
+        dispatch(setTrendingMovies(trendingMoviesResult.data));
+      }
+
+      console.log('Exit option clicked');
+    } catch (error) {
+      console.error('Error occurred while fetching movies:', error);
+    }
   };
 
   return (

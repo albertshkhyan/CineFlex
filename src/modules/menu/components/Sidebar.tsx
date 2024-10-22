@@ -12,8 +12,7 @@ import GenresIcon from '@assets/icons/genres.icons.png';
 import WatchLaterIcon from '@assets/icons/watch_later.icon.png';
 import profilePic from '@assets/images/profile_pic.jpeg';
 import useSidebarCollapse from '@app/hooks/useSidebarCollapse';
-import { Colors } from '@app/types/theme/colors.types';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Container = styled(motion.nav)<{ isCollapsed: boolean }>`
   display: flex;
@@ -36,16 +35,19 @@ const MenuItems = styled.div<{ isCollapsed: boolean }>`
   align-items: ${({ isCollapsed }) => (isCollapsed ? 'center' : 'flex-start')};
 `;
 
+const menuItems = [
+  { label: 'Home', icon: HomeIcon, path: '/' },
+  { label: 'TV Shows', icon: TvShowsIcon, path: '/tv-shows' },
+  { label: 'Movies', icon: MoviesIcon, path: '/movies' },
+  { label: 'Genres', icon: GenresIcon, path: '/genres' },
+  { label: 'Watch Later', icon: WatchLaterIcon, path: '/watch-later' },
+];
+
 const Sidebar: React.FC = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { isCollapsed, handleMouseEnter, handleMouseLeave } =
     useSidebarCollapse();
-
-  console.log('location.pathname: ', location.pathname);
-  console.log(
-    "location.pathname === '/home' || location.pathname === '/': ",
-    location.pathname === '/home' || location.pathname === '/'
-  );
 
   return (
     <Container
@@ -65,36 +67,16 @@ const Sidebar: React.FC = () => {
           isCollapsed={isCollapsed}
           isActive={location.pathname === '/search'}
         />
-        <MenuButton
-          label="Home"
-          icon={HomeIcon}
-          isCollapsed={isCollapsed}
-          isActive={location.pathname === '/home' || location.pathname === '/'}
-        />
-        <MenuButton
-          label="TV Shows"
-          icon={TvShowsIcon}
-          isCollapsed={isCollapsed}
-          isActive={location.pathname === '/tv-shows'}
-        />
-        <MenuButton
-          label="Movies"
-          icon={MoviesIcon}
-          isCollapsed={isCollapsed}
-          isActive={location.pathname === '/movies'}
-        />
-        <MenuButton
-          label="Genres"
-          icon={GenresIcon}
-          isCollapsed={isCollapsed}
-          isActive={location.pathname === '/genres'}
-        />
-        <MenuButton
-          label="Watch Later"
-          icon={WatchLaterIcon}
-          isCollapsed={isCollapsed}
-          isActive={location.pathname === '/watch-later'}
-        />
+        {menuItems.map((item) => (
+          <MenuButton
+            key={item.path}
+            label={item.label}
+            icon={item.icon}
+            isCollapsed={isCollapsed}
+            isActive={location.pathname === item.path}
+            onClick={() => navigate(item.path)}
+          />
+        ))}
       </MenuItems>
       <AdditionalOptions isCollapsed={isCollapsed} />
     </Container>

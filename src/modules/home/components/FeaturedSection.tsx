@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Colors } from '@app/types/theme/colors.types';
 import { FontFamily } from '@app/types/theme/font.types';
@@ -6,8 +6,101 @@ import IconButton from '@components/common/IconButton';
 import Button from '@components/common/Button';
 import { useAppSelector } from '@app/store/hook';
 import { useAppDispatch } from '@app/store';
-import { useGetFeaturedMovieQuery } from '@modules/home';
-import { setFeaturedMovie } from '@modules/home/store/home.slice';
+import {
+  loadLastSeenMoviesFromStorage,
+  setFeaturedMovie,
+} from '@modules/home/store/home.slice';
+import playXxl from '@assets/icons/play-xxl.png';
+import InfoModal from '@modules/home/components/InfoModal';
+
+const FeaturedSection: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const featuredMovie = useAppSelector((state) => state.home.featuredMovie);
+
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(loadLastSeenMoviesFromStorage());
+
+    const lastSeenMoviesFromStorage = JSON.parse(
+      sessionStorage.getItem('lastSeenMovies') || '[]'
+    );
+    if (lastSeenMoviesFromStorage.length > 0) {
+      dispatch(setFeaturedMovie(lastSeenMoviesFromStorage[0]));
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (featuredMovie && featuredMovie.VideoUrl) {
+      setTimeout(() => {
+        setIsVideoPlaying(true);
+      }, 2000);
+    }
+  }, [featuredMovie]);
+
+  const handlePlayButtonClick = () => {
+    setIsVideoPlaying(true);
+  };
+
+  const handleMoreInfoClick = () => {
+    setIsInfoModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsInfoModalOpen(false);
+  };
+
+  return (
+    <>
+      <Section>
+        {featuredMovie && (
+          <>
+            {!isVideoPlaying ? (
+              <FeaturedImage imageUrl={featuredMovie.TitleImage}>
+                <Overlay />
+                <OverlayGradient />
+                <Content>
+                  <Label>Movie</Label>
+                  <Title>{featuredMovie.Title}</Title>
+                  <Details>
+                    <span>{featuredMovie.ReleaseYear}</span>
+                    <span>{featuredMovie.MpaRating}</span>
+                    <span>
+                      {Math.floor(Number(featuredMovie.Duration) / 60)}h{' '}
+                      {Number(featuredMovie.Duration) % 60}m
+                    </span>
+                  </Details>
+                  <Description>{featuredMovie.Description}</Description>
+                  <ButtonContainer>
+                    <PlayButton
+                      variant="secondary"
+                      icon={<PlayButtonIcon src={playXxl} alt="Play" />}
+                      onClick={handlePlayButtonClick}
+                      label="Play"
+                    />
+                    <InfoButton variant="primary" onClick={handleMoreInfoClick}>
+                      More Info
+                    </InfoButton>
+                  </ButtonContainer>
+                </Content>
+              </FeaturedImage>
+            ) : (
+              <BackgroundVideo autoPlay muted loop>
+                <source src={featuredMovie.VideoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </BackgroundVideo>
+            )}
+          </>
+        )}
+      </Section>
+
+      {isInfoModalOpen && featuredMovie && (
+        <InfoModal movie={featuredMovie} onClose={handleModalClose} />
+      )}
+    </>
+  );
+};
 
 const Section = styled.section`
   display: flex;
@@ -25,6 +118,16 @@ const FeaturedImage = styled.div<{ imageUrl: string }>`
   background-size: cover;
   border-radius: 12px;
   position: relative;
+`;
+
+const BackgroundVideo = styled.video`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 `;
 
 const Overlay = styled.div`
@@ -128,55 +231,5 @@ const InfoButton = styled(Button)`
   font-weight: bold;
   font-size: 32px;
 `;
-
-const FeaturedSection: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { data: fetchedMovie, isLoading, error } = useGetFeaturedMovieQuery();
-  // const { data: featuredMovie, isLoading, error } = useGetFeaturedMovieQuery();
-  const featuredMovie = useAppSelector((state) => state.home.featuredMovie);
-
-  const playButtonIcon = '/src/assets/icons/play-xxl.png';
-
-  useEffect(() => {
-    if (fetchedMovie) {
-      dispatch(setFeaturedMovie(fetchedMovie));
-    }
-  }, [fetchedMovie, dispatch]);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Something went wrong!</div>;
-
-  return (
-    <Section>
-      {featuredMovie && (
-        <FeaturedImage imageUrl={featuredMovie.CoverImage}>
-          <Overlay />
-          <OverlayGradient />
-          <Content>
-            <Label>Movie</Label>
-            <Title>{featuredMovie.Title}</Title>
-            <Details>
-              <span>{featuredMovie.ReleaseYear}</span>
-              <span>{featuredMovie.MpaRating}</span>
-              <span>
-                {Math.floor(Number(featuredMovie.Duration) / 60)}h{' '}
-                {Number(featuredMovie.Duration) % 60}m
-              </span>
-            </Details>
-            <Description>{featuredMovie.Description}</Description>
-            <ButtonContainer>
-              <PlayButton
-                variant="secondary"
-                icon={<PlayButtonIcon src={playButtonIcon} alt="Play" />}
-                label="Play"
-              />
-              <InfoButton variant="primary">More Info</InfoButton>
-            </ButtonContainer>
-          </Content>
-        </FeaturedImage>
-      )}
-    </Section>
-  );
-};
 
 export default FeaturedSection;

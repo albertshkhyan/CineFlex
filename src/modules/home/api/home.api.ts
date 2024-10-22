@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { HomeData, Movie } from '../types/home.types';
 
-const BASE_URL = '/src/assets/';
+const BASE_URL = '/public/';
 
 export const homeApi = createApi({
   reducerPath: 'homeApi',
@@ -23,4 +23,8 @@ export const homeApi = createApi({
   }),
 });
 
-export const { useGetFeaturedMovieQuery, useGetTrendingMoviesQuery } = homeApi;
+export const {
+  useLazyGetFeaturedMovieQuery,
+  useGetTrendingMoviesQuery,
+  useLazyGetTrendingMoviesQuery,
+} = homeApi;

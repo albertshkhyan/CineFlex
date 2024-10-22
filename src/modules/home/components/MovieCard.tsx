@@ -10,7 +10,7 @@ interface MovieCardProps {
 }
 
 const CardContainer = styled.div<{ isActive: boolean }>`
-  width: 200px;
+  flex: 0 0 200px;
   height: 296px;
   position: relative;
   overflow: hidden;

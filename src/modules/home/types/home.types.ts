@@ -8,6 +8,7 @@ export interface Movie {
   MpaRating: string;
   Category: string;
   Duration: string;
+  VideoUrl: string;
   Description: string;
 }
 
