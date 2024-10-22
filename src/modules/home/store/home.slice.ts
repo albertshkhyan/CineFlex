@@ -20,8 +20,8 @@ const initialState: HomeState = {
 const defaultFeaturedMovie: Movie = {
   Id: '1',
   Title: 'The Irishman',
-  CoverImage: '/src/assets/images/small/the_irishman.small.jpg',
-  TitleImage: '/src/assets/images/large/the_irishman.large.jpg',
+  CoverImage: '/images/small/the_irishman.small.jpg',
+  TitleImage: '/images/large/the_irishman.large.jpg',
   Date: '2021-10-24T12:16:50.894556',
   ReleaseYear: '2021',
   MpaRating: '18+',
