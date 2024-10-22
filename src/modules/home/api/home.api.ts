@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { HomeData, Movie } from '../types/home.types';
 
-const BASE_URL = '/public/';
+const BASE_URL = '/';
 
 export const homeApi = createApi({
   reducerPath: 'homeApi',
