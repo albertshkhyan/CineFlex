@@ -177,7 +177,7 @@ const Title = styled.h2`
   font-family: ${FontFamily.Garamond};
   text-transform: uppercase;
   font-size: 108px;
-  background-image: url('/src/assets/images/texture_paper.jpg');
+  background-image: url('/assets/images/texture_paper.jpg');
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
